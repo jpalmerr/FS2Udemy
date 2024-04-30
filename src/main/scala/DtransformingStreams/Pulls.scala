@@ -73,5 +73,32 @@ object Pulls extends IOApp.Simple {
       }.stream
     }
     IO.println(firstChunk(s).toList) // List(1, 2)
+
+    def drop[A](n: Int): Pipe[Pure, A, A] = s => {
+      def go(s: Stream[Pure, A], n: Int): Pull[Pure, A, Unit] = {
+        s.pull.uncons.flatMap {
+          case Some((chunk, ros)) => {
+            if (chunk.size < n) go(ros, n - chunk.size)
+            else Pull.output(chunk.drop(n)) >> ros.pull.echo
+          }
+          case None => Pull.done
+        }
+      }
+      go(s, n).stream
+    }
+    // through: Transforms this stream using the given Pipe
+    IO.println(s.through(drop(3)).toList)
+
+    // ex: filter
+    def filter[A](p: A => Boolean): Pipe[Pure, A, A] = s => {
+      def go(s: Stream[Pure, A]): Pull[Pure, A, Unit] = s.pull.uncons.flatMap {
+        case Some((chunk, ros)) =>
+          Pull.output(chunk.filter(p)) >> go(ros)
+        case None => Pull.done
+      }
+
+      go(s).stream
+    }
+    IO.println(s.through(filter(_ % 2 != 0)).toList)
   }
 }

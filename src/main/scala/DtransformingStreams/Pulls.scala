@@ -59,7 +59,7 @@ object Pulls extends IOApp.Simple {
     skipLimit(10, 10)(Stream.range(1, 100)).compile.toList.flatMap(IO.println)
 
     /**
-     * uncos:
+     * uncons:
      * Waits for a chunk of elements to be available in the source stream.
      * The non-empty chunk of elements along with a new stream are provided as the resource of the returned pull.
      * The new stream can be used for subsequent operations, like awaiting again.

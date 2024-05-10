@@ -1,9 +1,8 @@
 package Econcurrency
 
-import cats.effect.{IO, IOApp}
+import cats.effect.{IO, IOApp, Ref}
 import fs2._
 
-import java.lang
 import scala.concurrent.duration._
 
 object Concurrently extends IOApp.Simple{
@@ -33,6 +32,29 @@ object Concurrently extends IOApp.Simple{
     s3.concurrently(s4).take(100).compile.toList.flatMap(IO.println) // List(3000,...,3099) only seeing elements from the first stream
     // so on output we have LHS bias
     Stream(s3, s4).parJoinUnbounded.take(100).compile.toList.flatMap(IO.println)
+
+    //    exercise
+    val numItems = 30
+
+    def processor(itemsProcessed: Ref[IO, Int]) = {
+      Stream.repeatEval(itemsProcessed.update(_ + 1))
+        .take(numItems)
+        .metered(100.millis)
+        .drain
+    }
+
+    def progressTracker(itemsProcessed: Ref[IO, Int]) = {
+      Stream.repeatEval(
+        itemsProcessed.get.flatMap(n => IO.println(s"Progress: ${n * 100 / numItems}%"))
+      ).metered(100.millis).drain
+    }
+
+    // create a stream that emits a ref (initially 0)
+    // run processor and progress tracker concurrently
+
+    Stream.eval(Ref.of[IO, Int](0)).flatMap { itemsProcessed =>
+      processor(itemsProcessed).concurrently(progressTracker(itemsProcessed))
+    }.compile.drain
   }
 }
 

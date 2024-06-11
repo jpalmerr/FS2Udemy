@@ -28,8 +28,8 @@ object Pulls extends IOApp.Simple {
       _ <- Pull.output1(1)
       _ <- Pull.output(Chunk(1, 2, 3))
     } yield ()
-    IO.println(combined.stream.toList) // List(1, 1, 2, 3)
-    IO.println(combined.stream.chunks.toList) // List(Chunk(1), Chunk(1, 2, 3))
+//    IO.println(combined.stream.toList) // List(1, 1, 2, 3)
+//    IO.println(combined.stream.chunks.toList) // List(Chunk(1), Chunk(1, 2, 3))
 
     /**
      * Turning streams into pulls

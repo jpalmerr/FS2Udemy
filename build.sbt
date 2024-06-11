@@ -9,5 +9,9 @@ lazy val root = (project in file("."))
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
 
-libraryDependencies += "co.fs2" %% "fs2-core" % "3.2.7"
-libraryDependencies += "co.fs2" %% "fs2-io" % "3.2.7"
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-generic" % "0.14.1",
+  "co.fs2" %% "fs2-core" % "3.2.7",
+  "co.fs2" %% "fs2-io" % "3.2.7",
+  "org.typelevel" %% "cats-effect" % "3.3.4"
+)
